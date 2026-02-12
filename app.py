@@ -7,7 +7,7 @@ from src.ml_logic import run_market_basket_analysis
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Intelligent Retail Data Hub",
+    page_title="ShelfSmart",
     page_icon="🛍️",
     layout="wide",
     initial_sidebar_state="expanded"
