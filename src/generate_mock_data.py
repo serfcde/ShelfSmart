@@ -3,6 +3,7 @@ from faker import Faker
 import random
 from datetime import datetime, timedelta
 import os
+import json
 
 # Initialize Faker with an Indian locale as per the problem statement
 fake = Faker('en_IN')
@@ -10,6 +11,78 @@ fake = Faker('en_IN')
 # Define paths
 RAW_DATA_DIR = "raw_data"
 INPUT_FILE = os.path.join(RAW_DATA_DIR, "Online Retail.csv")
+STREAM_DIR = os.path.join(RAW_DATA_DIR, "stream")
+
+def generate_web_logs(dim_customers, product_ids, num_events=500):
+    """
+    Generate synthetic web logs (clickstream data) as JSON.
+    This represents the Web/E-commerce Silo in the problem statement.
+    
+    Schema Evolution Test: Some events have 'promo_code', others don't.
+    """
+    print("🌐 Generating Web Logs (E-commerce Clickstream)...")
+    
+    os.makedirs(STREAM_DIR, exist_ok=True)
+    
+    customer_ids = dim_customers["customer_id"].to_list()
+    event_types = ["page_view", "search", "add_to_cart", "remove_from_cart", "checkout_start", "checkout_completed"]
+    devices = ["mobile", "desktop", "tablet"]
+    referrers = ["google_search", "facebook_ad", "direct", "newsletter", "instagram"]
+    
+    web_events = []
+    session_id_counter = 1000
+    
+    for _ in range(num_events):
+        # Create a session with 1-8 events (customer journey)
+        session_events = random.randint(1, 8)
+        session_id = f"sess_{session_id_counter}"
+        session_id_counter += 1
+        
+        customer_id = random.choice(customer_ids)
+        base_time = datetime.now() - timedelta(hours=random.randint(0, 48))
+        
+        for event_seq in range(session_events):
+            event_time = base_time + timedelta(minutes=random.randint(event_seq * 2, event_seq * 2 + 5))
+            event_type = random.choice(event_types)
+            
+            event = {
+                "session_id": session_id,
+                "customer_id": int(customer_id),
+                "event_type": event_type,
+                "timestamp": event_time.isoformat(),
+                "device_type": random.choice(devices),
+                "referrer": random.choice(referrers)
+            }
+            
+            # Add product context for browsing/cart events
+            if event_type in ["page_view", "add_to_cart", "remove_from_cart", "search"]:
+                event["product_id"] = random.choice(product_ids)
+                event["duration_seconds"] = random.randint(10, 300) if event_type == "page_view" else None
+                
+            # SCHEMA EVOLUTION TRAP: Randomly add promo_code (not all events have it)
+            if random.random() < 0.15:  # 15% of events
+                event["promo_code"] = random.choice(["SAVE10", "WELCOME20", "FLASH35", None])
+            
+            # Add quantity only for add_to_cart and remove_from_cart
+            if event_type in ["add_to_cart", "remove_from_cart"]:
+                event["quantity"] = random.randint(1, 5)
+            
+            # Add checkout details only for checkout events
+            if event_type == "checkout_completed":
+                event["transaction_id"] = f"TXN_{random.randint(100000, 999999)}"
+                event["total_value"] = round(random.uniform(500, 5000), 2)
+            
+            web_events.append(event)
+    
+    # Write web logs to JSON file (simulating real-time streaming arrival)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = os.path.join(STREAM_DIR, f"web_events_{timestamp}.json")
+    
+    with open(log_file, 'w') as f:
+        for event in web_events:
+            f.write(json.dumps(event) + "\n")  # JSONL format (one JSON per line)
+    
+    print(f"✅ Web logs generated: {len(web_events)} events in {log_file}")
 
 def main():
     print("🚀 Starting Data Generation & Mapping Process...")
@@ -70,10 +143,20 @@ def main():
     print("👥 Generating Customers Dimension (with SCD Type 2 Traps)...")
     dim_customers = df.select(["CustomerID", "Country"]).unique(subset=["CustomerID"])
     
-    # Generate names, emails, and base dates
+    # ==========================================
+    # DIMENSION 3: CUSTOMERS (Extract + Generate)
+    # ==========================================
+    print("👥 Generating Customers Dimension (with SCD Type 2 Traps)...")
+    
+    # CHANGE 1: Only select CustomerID (Drop Country so we don't use it by accident)
+    dim_customers = df.select(["CustomerID"]).unique(subset=["CustomerID"])
+    
+    # Generate names, emails, base dates, AND CITIES
     dim_customers = dim_customers.with_columns([
         pl.Series("name", [fake.name() for _ in range(dim_customers.height)]),
         pl.Series("email", [fake.email() for _ in range(dim_customers.height)]),
+        # CHANGE 2: Generate a fake Indian city for every customer
+        pl.Series("city", [fake.city() for _ in range(dim_customers.height)]), 
         pl.Series("update_timestamp", [datetime.now() - timedelta(days=random.randint(50, 200)) for _ in range(dim_customers.height)])
     ])
     dim_customers = dim_customers.rename({"CustomerID": "customer_id", "Country": "city"})
@@ -88,15 +171,19 @@ def main():
     dim_customers = pl.concat([dim_customers, scd_trap])
     dim_customers.write_csv(os.path.join(RAW_DATA_DIR, "dim_customers.csv"))
 
+    
     # ==========================================
     # FACT 1: SALES (Extract + Link)
     # ==========================================
     print("🛒 Generating Sales Fact Table...")
-    fact_sales = df.select(["InvoiceNo", "CustomerID", "StockCode", "Quantity", "UnitPrice", "InvoiceDate"])
+    # Remove InvoiceDate from the select
+    fact_sales = df.select(["InvoiceNo", "CustomerID", "StockCode", "Quantity", "UnitPrice"])
     
-    # Randomly assign each transaction to a store
+    # Randomly assign stores AND generate recent dates
     fact_sales = fact_sales.with_columns([
-        pl.Series("store_id", [random.choice(store_ids) for _ in range(fact_sales.height)])
+        pl.Series("store_id", [random.choice(store_ids) for _ in range(fact_sales.height)]),
+        # FIX: Generate transaction dates for the last 1 year relative to now
+        pl.Series("transaction_date", [fake.date_time_between(start_date="-1y", end_date="now") for _ in range(fact_sales.height)])
     ])
     
     fact_sales = fact_sales.rename({
@@ -104,12 +191,9 @@ def main():
         "CustomerID": "customer_id",
         "StockCode": "product_id",
         "Quantity": "quantity",
-        "UnitPrice": "unit_price",
-        "InvoiceDate": "transaction_date"
+        "UnitPrice": "unit_price"
+        # Removed InvoiceDate rename since we generated it manually above
     })
-    
-    # Note: The real dataset already has negative quantities (returns/cancellations) 
-    # and 0 unit prices. This acts as our perfect "Quality Trap" for Step 3!
     fact_sales.write_csv(os.path.join(RAW_DATA_DIR, "fact_sales.csv"))
 
     # ==========================================
@@ -150,7 +234,15 @@ def main():
     fact_shipments = pl.DataFrame(shipment_data)
     fact_shipments.write_csv(os.path.join(RAW_DATA_DIR, "fact_shipments.csv"))
 
-    print("✅ SUCCESS! All 6 Star Schema CSVs have been generated in the 'raw_data' folder.")
+    # ==========================================
+    # SILO 3: WEB LOGS (Generate Mock JSON)
+    # ==========================================
+    # Convert back to original name for the web log generation (customer_id is the key)
+    generate_web_logs(dim_customers, product_ids, num_events=500)
+
+    print("✅ SUCCESS! All 6 Star Schema CSVs + Web Logs have been generated.")
+    print("   - Star Schema Tables: raw_data/*.csv")
+    print("   - Web Logs (JSON): raw_data/stream/*.json")
 
 if __name__ == "__main__":
     main()

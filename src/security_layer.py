@@ -21,6 +21,7 @@ def setup_security_layer():
     con.execute(f"CREATE OR REPLACE VIEW raw_stores AS SELECT * FROM '{HUB_DIR}/dim_stores.parquet'")
     con.execute(f"CREATE OR REPLACE VIEW raw_sales AS SELECT * FROM '{HUB_DIR}/fact_sales.parquet'")
     con.execute(f"CREATE OR REPLACE VIEW raw_inventory AS SELECT * FROM '{HUB_DIR}/fact_inventory.parquet'")
+    con.execute(f"CREATE OR REPLACE VIEW raw_web_events AS SELECT * FROM '{HUB_DIR}/fact_web_events.parquet'")
 
     # 3. Create SECURE VIEWS (Access Control)
     # FIX APPLIED: Using capture groups for reliable masking in DuckDB
@@ -59,6 +60,28 @@ def setup_security_layer():
         FROM raw_sales s
         LEFT JOIN raw_products p ON s.product_id = p.product_id
         LEFT JOIN raw_stores st ON s.store_id = st.store_id
+    """)
+    
+    # 5. Create WEB ANALYTICS VIEW
+    # Flatten web events with product details for easier querying
+    con.execute("""
+        CREATE OR REPLACE VIEW analytics_web_engagement AS
+        SELECT 
+            we.session_id,
+            we.customer_id,
+            we.event_type,
+            we.event_date,
+            we.timestamp,
+            we.device_type,
+            we.referrer,
+            p.description as product_name,
+            p.category as product_category,
+            we.product_id,
+            we.quantity,
+            we.promo_code,
+            CASE WHEN we.event_type = 'checkout_completed' THEN we.transaction_id ELSE NULL END as purchase_txn_id
+        FROM raw_web_events we
+        LEFT JOIN raw_products p ON we.product_id = p.product_id
     """)
 
     print(f"✅ Security Layer established in: {DB_PATH}")

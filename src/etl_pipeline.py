@@ -1,11 +1,14 @@
 import polars as pl
 import os
 from datetime import datetime
+import json
+import glob
 
 # Define Directories
 RAW_DIR = "raw_data"
 HUB_DIR = "data_hub"
 LOG_DIR = "logs"
+STREAM_DIR = os.path.join(RAW_DIR, "stream")
 
 # Ensure output directories exist
 os.makedirs(HUB_DIR, exist_ok=True)
@@ -105,6 +108,90 @@ def process_facts():
     shipments.write_parquet(os.path.join(HUB_DIR, "fact_shipments.parquet"))
     print("✅ fact_shipments processed.")
 
+def process_web_logs():
+    """
+    Process Web Logs (E-commerce Clickstream) from JSON files.
+    Handles Schema Evolution: Missing fields become null.
+    This solves SILO 3: Web Logs
+    """
+    print("\n🌐 Processing Web Logs (Clickstream Data)...")
+    
+    # Find all JSON files in the stream directory
+    json_files = glob.glob(os.path.join(STREAM_DIR, "*.json"))
+    
+    if not json_files:
+        log_quality_issue("No web log files found in stream directory.")
+        print("⚠️ No web logs to process. Skipping...")
+        return
+    
+    all_events = []
+    
+    # Process each JSON file (JSONL format: one JSON object per line)
+    for json_file in json_files:
+        try:
+            with open(json_file, 'r') as f:
+                for line_num, line in enumerate(f, 1):
+                    try:
+                        event = json.loads(line.strip())
+                        if event:  # Skip empty lines
+                            all_events.append(event)
+                    except json.JSONDecodeError as e:
+                        log_quality_issue(f"JSON parsing error in {json_file} line {line_num}: {str(e)}")
+                        continue
+        except Exception as e:
+            log_quality_issue(f"Error reading {json_file}: {str(e)}")
+            continue
+    
+    if not all_events:
+        log_quality_issue("No valid web events parsed from JSON files.")
+        print("⚠️ No valid web events to process.")
+        return
+    
+    # Convert list of dicts to Polars DataFrame
+    # This auto-handles schema evolution (missing fields become null)
+    web_events_df = pl.DataFrame(all_events)
+    
+    initial_count = len(all_events)
+    
+    # DATA QUALITY FIXES
+    # 1. Handle null customer_id (can't join to dim_customers)
+    web_events_df = web_events_df.filter(pl.col("customer_id").is_not_null())
+    null_customer_dropped = initial_count - web_events_df.height
+    if null_customer_dropped > 0:
+        log_quality_issue(f"Web Logs: Dropped {null_customer_dropped} events with null customer_id.")
+    
+    # 2. Remove duplicate events (same session, event_type, timestamp within 1 second)
+    before_dedup = web_events_df.height
+    web_events_df = web_events_df.unique(subset=["session_id", "event_type", "timestamp"], keep="first")
+    dedup_count = before_dedup - web_events_df.height
+    if dedup_count > 0:
+        log_quality_issue(f"Web Logs: Removed {dedup_count} duplicate events via deduplication.")
+    
+    # 3. Parse timestamp to ensure valid format
+    try:
+        web_events_df = web_events_df.with_columns(
+            pl.col("timestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S%.f")
+        )
+    except:
+        log_quality_issue("Warning: Some timestamps could not be parsed. Proceeding with parsed records.")
+    
+    # 4. Add parsed date for partitioning
+    web_events_df = web_events_df.with_columns(
+        pl.col("timestamp").dt.date().alias("event_date")
+    )
+    
+    # Log schema evolution (unexpected fields captured)
+    columns = web_events_df.columns
+    standard_cols = {"session_id", "customer_id", "event_type", "timestamp", "device_type", "referrer", "product_id"}
+    extra_cols = set(columns) - standard_cols - {"event_date", "duration_seconds", "promo_code", "quantity", "transaction_id", "total_value"}
+    if extra_cols:
+        log_quality_issue(f"Schema Evolution: Captured unexpected fields: {', '.join(extra_cols)}")
+    
+    # Save to Parquet
+    web_events_df.write_parquet(os.path.join(HUB_DIR, "fact_web_events.parquet"))
+    log_quality_issue(f"Web Logs: {web_events_df.height} events processed and saved.")
+    print(f"✅ fact_web_events processed ({web_events_df.height} events, all columns with null handling for schema evolution).")
+
 def main():
     print("🚀 Starting Polars ETL Pipeline...")
     
@@ -117,6 +204,7 @@ def main():
     
     process_dimensions()
     process_facts()
+    process_web_logs()
     
     log_quality_issue("ETL Pipeline Completed Successfully.")
     print("\n🎉 SUCCESS! All data cleaned and saved to the 'data_hub' as Parquet files.")

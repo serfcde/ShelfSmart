@@ -24,7 +24,8 @@ def initialize_analytics_db():
         'dim_stores': 'dim_stores.parquet',
         'fact_sales': 'fact_sales.parquet',
         'fact_inventory': 'fact_inventory.parquet',
-        'fact_shipments': 'fact_shipments.parquet'
+        'fact_shipments': 'fact_shipments.parquet',
+        'fact_web_events': 'fact_web_events.parquet'
     }
     
     # Register each Parquet file as a virtual SQL table (View)
