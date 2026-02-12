@@ -1,0 +1,5 @@
+[2026-02-12 17:09:46] ETL Pipeline Started.
+[2026-02-12 17:09:46] Processed Customers: Found 218 historical records (SCD Type 2 resolved).
+[2026-02-12 17:09:46] Sales Data Cleaned: Dropped 8945 invalid rows (negative/zero quantity or price).
+[2026-02-12 17:09:46] Inventory Cleaned: Corrected negative stock values to 0.
+[2026-02-12 17:09:46] ETL Pipeline Completed Successfully.
