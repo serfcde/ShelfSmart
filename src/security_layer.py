@@ -12,10 +12,8 @@ def setup_security_layer():
     con = duckdb.connect(DB_PATH)
 
     # 2. Register Parquet files as Virtual Tables
-    # This allows SQL queries directly on top of Parquet without 'loading' them into memory
     print("📦 Registering Parquet files as tables...")
     
-    # Using execute with f-strings to point to the correct file paths
     con.execute(f"CREATE OR REPLACE VIEW raw_customers AS SELECT * FROM '{HUB_DIR}/dim_customers.parquet'")
     con.execute(f"CREATE OR REPLACE VIEW raw_products AS SELECT * FROM '{HUB_DIR}/dim_products.parquet'")
     con.execute(f"CREATE OR REPLACE VIEW raw_stores AS SELECT * FROM '{HUB_DIR}/dim_stores.parquet'")
@@ -24,11 +22,7 @@ def setup_security_layer():
     con.execute(f"CREATE OR REPLACE VIEW raw_web_events AS SELECT * FROM '{HUB_DIR}/fact_web_events.parquet'")
 
     # 3. Create SECURE VIEWS (Access Control)
-    # FIX APPLIED: Using capture groups for reliable masking in DuckDB
-    # Group 1 (^.{3}) captures the first 3 chars
-    # Group 2 (.*) captures the middle part (which we discard)
-    # Group 3 (@.*$) captures the domain
-    # We replace with Group 1 + **** + Group 3
+   
     print("🛡️ Creating Secure Views for PII protection...")
     con.execute("""
         CREATE OR REPLACE VIEW secure_customers AS 
@@ -43,7 +37,6 @@ def setup_security_layer():
     """)
 
     # 4. Create ANALYTICS VIEWS (Simplifying life for Person B)
-    # This view joins Sales with Products and Stores so the Analyst gets a 'flat' table
     print("📊 Creating Gold-Layer Analytics Views...")
     con.execute("""
         CREATE OR REPLACE VIEW analytics_sales_performance AS

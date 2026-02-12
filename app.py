@@ -13,8 +13,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- INITIALIZATION ---
-# Initialize the database connection (Connecting to Person A's Parquet files via src/db_connector.py)
 conn = initialize_analytics_db()
 
 # --- SIDEBAR FILTERS ---
@@ -24,7 +22,7 @@ st.sidebar.header("🛠️ Global Controls")
 start_date = st.sidebar.date_input("Start Date", datetime(2010, 12, 1))
 end_date = st.sidebar.date_input("End Date", datetime(2011, 12, 9))
 
-# Convert to date_range for backward compatibility with existing queries
+
 date_range = [start_date, end_date]
 
 st.sidebar.markdown("---")
@@ -39,7 +37,6 @@ st.sidebar.info(
 st.title("🛍️ Smart Retail Supply Chain & Intelligence")
 st.markdown(f"**Data Hub View:** {date_range[0]} to {date_range[1]}")
 
-# Navigation Tabs as per Project Handbook
 tab_exec, tab_ops, tab_ai = st.tabs([
     "📈 Executive Summary", 
     "🚚 Real-Time Operations", 
@@ -73,7 +70,7 @@ with tab_exec:
         
         # --- INVENTORY TURNOVER KPI ---
         # Formula: SUM(quantity) / AVG(stock_on_hand)
-        # Required in: "Operations Metrics: Inventory Turnover Ratio"
+        
         # --- DAILY REVENUE TREND CHART ---
         st.markdown("---")
         st.write("#### 📊 Daily Revenue Trend")
