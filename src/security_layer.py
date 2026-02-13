@@ -56,7 +56,6 @@ def setup_security_layer():
     """)
     
     # 5. Create WEB ANALYTICS VIEW
-    # Flatten web events with product details for easier querying
     con.execute("""
         CREATE OR REPLACE VIEW analytics_web_engagement AS
         SELECT 
@@ -79,9 +78,9 @@ def setup_security_layer():
 
     print(f"✅ Security Layer established in: {DB_PATH}")
     
-    # Quick Test: Try to read the customers
-    print("\n🕵️ Testing Security (Selecting from secure_customers):")
-    # We explicitly select masked_email to verify the fix
+    
+    print("\n Testing Security (Selecting from secure_customers):")
+    
     test_query = con.execute("SELECT name, masked_email, city FROM secure_customers LIMIT 3").df()
     print(test_query)
     
