@@ -256,7 +256,7 @@ with tab_exec:
 # ============================================================
 with tab_ops:
     st.subheader("Operations & Logistics Health")
-    
+    # Simulate real-time data streaming by refreshing this section every 30 seconds
     st.warning("🔄 Live Stream: Processing logs from `raw_data/stream/` every 30 seconds.")
     
     o1, o2 = st.columns(2)
