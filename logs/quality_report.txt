@@ -3,3 +3,38 @@
 [2026-02-12 17:09:46] Sales Data Cleaned: Dropped 8945 invalid rows (negative/zero quantity or price).
 [2026-02-12 17:09:46] Inventory Cleaned: Corrected negative stock values to 0.
 [2026-02-12 17:09:46] ETL Pipeline Completed Successfully.
+[2026-02-13 12:12:24] Web Logs: Removed 3 duplicate events via deduplication.
+[2026-02-13 12:12:24] Web Logs: 230 events processed and saved.
+[2026-02-13 12:12:54] Web Logs: Removed 7 duplicate events via deduplication.
+[2026-02-13 12:12:54] Web Logs: 487 events processed and saved.
+[2026-02-13 12:13:24] Web Logs: Removed 10 duplicate events via deduplication.
+[2026-02-13 12:13:24] Web Logs: 708 events processed and saved.
+[2026-02-13 12:13:59] Web Logs: Removed 11 duplicate events via deduplication.
+[2026-02-13 12:13:59] Web Logs: 911 events processed and saved.
+[2026-02-13 12:14:30] Web Logs: Removed 13 duplicate events via deduplication.
+[2026-02-13 12:14:30] Web Logs: 1113 events processed and saved.
+[2026-02-13 12:15:00] Web Logs: Removed 19 duplicate events via deduplication.
+[2026-02-13 12:15:00] Web Logs: 1317 events processed and saved.
+[2026-02-13 12:15:30] Web Logs: Removed 24 duplicate events via deduplication.
+[2026-02-13 12:15:30] Web Logs: 1558 events processed and saved.
+[2026-02-13 12:16:05] Web Logs: Removed 29 duplicate events via deduplication.
+[2026-02-13 12:16:05] Web Logs: 1784 events processed and saved.
+[2026-02-13 12:16:36] Web Logs: Removed 33 duplicate events via deduplication.
+[2026-02-13 12:16:36] Web Logs: 1973 events processed and saved.
+[2026-02-13 12:17:06] Web Logs: Removed 38 duplicate events via deduplication.
+[2026-02-13 12:17:06] Web Logs: 2197 events processed and saved.
+[2026-02-13 12:17:36] Web Logs: Removed 46 duplicate events via deduplication.
+[2026-02-13 12:17:36] Web Logs: 2432 events processed and saved.
+[2026-02-13 12:18:11] Web Logs: Removed 50 duplicate events via deduplication.
+[2026-02-13 12:18:11] Web Logs: 2668 events processed and saved.
+[2026-02-13 12:26:26] Processed Customers: Found 218 historical records (SCD Type 2 resolved).
+[2026-02-13 12:26:35] Processed Customers: Found 218 historical records (SCD Type 2 resolved).
+[2026-02-13 12:26:52] Web Logs: 4530 events processed.
+[2026-02-13 12:27:22] Web Logs: 4750 events processed.
+[2026-02-13 12:27:52] Web Logs: 4972 events processed.
+[2026-02-13 12:29:25] Processed Customers: Found 218 historical records (SCD Type 2 resolved).
+[2026-02-13 12:29:25] Sales Data Cleaned: Dropped 8945 invalid rows.
+[2026-02-13 12:29:26] Web Logs: 7161 events processed.
+[2026-02-13 12:29:51] Web Logs: 7383 events processed.
+[2026-02-13 12:30:22] Web Logs: 7595 events processed.
+[2026-02-13 12:30:52] Web Logs: 7825 events processed.
