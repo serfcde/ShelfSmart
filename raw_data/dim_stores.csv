@@ -1,56 +1,56 @@
 store_id,store_name,city
-ST_001,Retail Hub Bhind,Mango
-ST_002,Retail Hub Pudukkottai,Ongole
-ST_003,Retail Hub Bhatpara,Madanapalle
-ST_004,Retail Hub Sikar,Satara
-ST_005,Retail Hub Danapur,Mysore
-ST_006,Retail Hub Nagpur,Mango
-ST_007,Retail Hub Kollam,Danapur
-ST_008,Retail Hub Gorakhpur,Nagercoil
-ST_009,Retail Hub Durgapur,Rajpur Sonarpur
-ST_010,Retail Hub Khammam,Nizamabad
-ST_011,Retail Hub Pune,Bihar Sharif
-ST_012,Retail Hub Nagaon,Solapur
-ST_013,Retail Hub Surat,Nangloi Jat
-ST_014,Retail Hub Arrah,Mau
-ST_015,Retail Hub Warangal,Sultan Pur Majra
-ST_016,Retail Hub Udupi,Tiruppur
-ST_017,Retail Hub Ghaziabad,Visakhapatnam
-ST_018,Retail Hub Surendranagar Dudhrej,Satna
-ST_019,Retail Hub Faridabad,Ongole
-ST_020,Retail Hub Junagadh,Motihari
-ST_021,Retail Hub Bhatpara,Sambhal
-ST_022,Retail Hub Ichalkaranji,Sikar
-ST_023,Retail Hub Pallavaram,Rewa
-ST_024,Retail Hub Bharatpur,Tirupati
-ST_025,Retail Hub Pondicherry,Alappuzha
-ST_026,Retail Hub Mathura,Jhansi
-ST_027,Retail Hub Ongole,Bhilwara
-ST_028,Retail Hub Tumkur,Hindupur
-ST_029,Retail Hub Silchar,Barasat
-ST_030,Retail Hub Malda,Bhilwara
-ST_031,Retail Hub Ghaziabad,Kavali
-ST_032,Retail Hub Fatehpur,Satna
-ST_033,Retail Hub Bhavnagar,New Delhi
-ST_034,Retail Hub Phusro,Unnao
-ST_035,Retail Hub Bathinda,Kolkata
-ST_036,Retail Hub Shivpuri,Hindupur
-ST_037,Retail Hub Tinsukia,Darbhanga
-ST_038,Retail Hub Bhiwandi,Karaikudi
-ST_039,Retail Hub Mathura,Udaipur
-ST_040,Retail Hub Patiala,Sultan Pur Majra
-ST_041,Retail Hub Nellore,Panipat
-ST_042,Retail Hub Srinagar,Unnao
-ST_043,Retail Hub Unnao,Chandrapur
-ST_044,Retail Hub Darbhanga,Dharmavaram
-ST_045,Retail Hub Miryalaguda,Amritsar
-ST_046,Retail Hub Berhampore,Mathura
-ST_047,Retail Hub Jamshedpur,Srinagar
-ST_048,Retail Hub Kalyan-Dombivli,Anand
-ST_049,Retail Hub Thane,Amritsar
-ST_050,Retail Hub Agra,Anantapur
-ST_051,Retail Hub Alappuzha,Nangloi Jat
-ST_052,Retail Hub Salem,Barasat
-ST_053,Retail Hub Nashik,Alwar
-ST_054,Retail Hub Nashik,Latur
-ST_055,Retail Hub Nadiad,Visakhapatnam
+ST_001,Retail Hub Howrah,Adoni
+ST_002,Retail Hub Dhanbad,Ambala
+ST_003,Retail Hub Narasaraopet,Davanagere
+ST_004,Retail Hub Ozhukarai,Gwalior
+ST_005,Retail Hub Rourkela,Dhule
+ST_006,Retail Hub Nashik,Serampore
+ST_007,Retail Hub Gopalpur,Anand
+ST_008,Retail Hub Guntakal,Berhampore
+ST_009,Retail Hub Vellore,Patiala
+ST_010,Retail Hub Junagadh,Mahbubnagar
+ST_011,Retail Hub Aurangabad,Nangloi Jat
+ST_012,Retail Hub Secunderabad,Dindigul
+ST_013,Retail Hub Shahjahanpur,Vijayanagaram
+ST_014,Retail Hub Belgaum,Fatehpur
+ST_015,Retail Hub Bhubaneswar,Sikar
+ST_016,Retail Hub Udupi,Vijayawada
+ST_017,Retail Hub Surat,Sambalpur
+ST_018,Retail Hub Panipat,Jalna
+ST_019,Retail Hub Tadepalligudem,Bijapur
+ST_020,Retail Hub Madanapalle,Warangal
+ST_021,Retail Hub Ranchi,Guntur
+ST_022,Retail Hub Gurgaon,Solapur
+ST_023,Retail Hub Tenali,Rajahmundry
+ST_024,Retail Hub Kavali,Thane
+ST_025,Retail Hub Mumbai,Shivpuri
+ST_026,Retail Hub Hospet,Mahbubnagar
+ST_027,Retail Hub Madurai,Kochi
+ST_028,Retail Hub Suryapet,Siwan
+ST_029,Retail Hub Nagaon,Faridabad
+ST_030,Retail Hub Visakhapatnam,Tinsukia
+ST_031,Retail Hub Jammu,Serampore
+ST_032,Retail Hub Bhalswa Jahangir Pur,Sambhal
+ST_033,Retail Hub Pune,Baranagar
+ST_034,Retail Hub Kolkata,Bhubaneswar
+ST_035,Retail Hub Bathinda,Siliguri
+ST_036,Retail Hub Jamshedpur,Hyderabad
+ST_037,Retail Hub Raipur,Bally
+ST_038,Retail Hub Raurkela Industrial Township,Agra
+ST_039,Retail Hub Danapur,Dibrugarh
+ST_040,Retail Hub South Dumdum,Katni
+ST_041,Retail Hub Ludhiana,Amaravati
+ST_042,Retail Hub Phagwara,Pune
+ST_043,Retail Hub Amravati,Berhampur
+ST_044,Retail Hub Jaipur,Bidhannagar
+ST_045,Retail Hub Ambattur,Nagpur
+ST_046,Retail Hub Kolkata,Tadepalligudem
+ST_047,Retail Hub Kavali,Thoothukudi
+ST_048,Retail Hub Tiruvottiyur,Sambalpur
+ST_049,Retail Hub Guna,Nangloi Jat
+ST_050,Retail Hub Raipur,Bathinda
+ST_051,Retail Hub Phusro,Meerut
+ST_052,Retail Hub Siwan,Shimoga
+ST_053,Retail Hub Bongaigaon,Kurnool
+ST_054,Retail Hub Gulbarga,Miryalaguda
+ST_055,Retail Hub Bihar Sharif,Nashik

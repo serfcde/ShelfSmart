@@ -148,25 +148,29 @@ def main():
     # ==========================================
     print("👥 Generating Customers Dimension (with SCD Type 2 Traps)...")
     
-    # CHANGE 1: Only select CustomerID (Drop Country so we don't use it by accident)
+    # FIX: Select BOTH CustomerID and Country if you want to rename Country later,
+    # OR just select CustomerID and add a 'city' column manually.
     dim_customers = df.select(["CustomerID"]).unique(subset=["CustomerID"])
     
     # Generate names, emails, base dates, AND CITIES
     dim_customers = dim_customers.with_columns([
         pl.Series("name", [fake.name() for _ in range(dim_customers.height)]),
         pl.Series("email", [fake.email() for _ in range(dim_customers.height)]),
-        # CHANGE 2: Generate a fake Indian city for every customer
+        # We generate a fake Indian city for every customer here
         pl.Series("city", [fake.city() for _ in range(dim_customers.height)]), 
         pl.Series("update_timestamp", [datetime.now() - timedelta(days=random.randint(50, 200)) for _ in range(dim_customers.height)])
     ])
-    dim_customers = dim_customers.rename({"CustomerID": "customer_id", "Country": "city"})
 
-    # INJECT SCD TYPE 2 TRAP: Pick 5% of customers and simulate them moving to an Indian city
+    # FIX: Removed "Country": "city" from the rename mapping since we created 'city' above
+    dim_customers = dim_customers.rename({"CustomerID": "customer_id"})
+
+    # INJECT SCD TYPE 2 TRAP: Pick 5% of customers and simulate them moving
     scd_trap = dim_customers.sample(fraction=0.05)
     scd_trap = scd_trap.with_columns([
         pl.Series("city", [fake.city() for _ in range(scd_trap.height)]),
         pl.Series("update_timestamp", [datetime.now() - timedelta(days=random.randint(1, 10)) for _ in range(scd_trap.height)])
     ])
+    
     # Combine original and updated records to create duplicates for the ETL to handle
     dim_customers = pl.concat([dim_customers, scd_trap])
     dim_customers.write_csv(os.path.join(RAW_DATA_DIR, "dim_customers.csv"))

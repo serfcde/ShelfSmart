@@ -5,6 +5,10 @@ from datetime import datetime
 import numpy as np
 from src.db_connector import initialize_analytics_db
 from src.ml_logic import run_market_basket_analysis
+import random
+import os
+
+
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -18,24 +22,142 @@ st.set_page_config(
 conn = initialize_analytics_db()
 
 # --- SIDEBAR FILTERS ---
-st.sidebar.header("🛠️ Global Controls")
+st.sidebar.markdown("### Select the Date Range for Analysis")
+st.sidebar.markdown("---")
 
-# Date Picker (Defaulting to the dataset's range)
-start_date = st.sidebar.date_input("Start Date", datetime(2010, 12, 1))
-end_date = st.sidebar.date_input("End Date", datetime(2011, 12, 9))
+# Date Range Section with better visual grouping
+st.sidebar.markdown("#### 📅 Date Range")
+col1, col2 = st.sidebar.columns(2)
+with col1:
+    start_date = st.date_input(
+        "From",
+        datetime(2010, 12, 1),
+        help="Select start date for analysis"
+    )
+with col2:
+    end_date = st.date_input(
+        "To",
+        datetime(2011, 12, 9),
+        help="Select end date for analysis"
+    )
 date_range = [start_date, end_date]
 
+# Display selected range in a more visual way
+date_diff = (end_date - start_date).days
+st.sidebar.caption(f"📊 Analysis Period: **{date_diff} days**")
+
 st.sidebar.markdown("---")
-st.sidebar.info(
-    "**System Status:**\n\n"
-    "✅ **Ingestion:** Active\n\n"
-    "✅ **Storage:** Parquet (Local)\n\n"
-    "✅ **Compute:** DuckDB"
-)
+
+# Enhanced System Status with better formatting
+st.sidebar.markdown("#### 🔧 System Status")
+
+# Create status indicators with color coding
+status_html = """
+<div style="padding: 10px; border-radius: 5px; background-color: #0e1117;">
+    <div style="margin-bottom: 8px;">
+        <span style="color: #00ff00; font-size: 16px;">●</span>
+        <span style="margin-left: 8px;"><strong>Ingestion:</strong> Active</span>
+    </div>
+    <div style="margin-bottom: 8px;">
+        <span style="color: #00ff00; font-size: 16px;">●</span>
+        <span style="margin-left: 8px;"><strong>Storage:</strong> Parquet (Local)</span>
+    </div>
+    <div>
+        <span style="color: #00ff00; font-size: 16px;">●</span>
+        <span style="margin-left: 8px;"><strong>Compute:</strong> DuckDB</span>
+    </div>
+</div>
+"""
+st.sidebar.markdown(status_html, unsafe_allow_html=True)
+
+st.sidebar.markdown("---")
+
+# Optional: Add data refresh timestamp
+st.sidebar.caption(f"🕐 Last Updated: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 
 # --- MAIN UI ---
-st.title("🛒 ShelfSmart: Intelligent Retail Hub")
-st.markdown(f"**Data Hub View:** {date_range[0]} to {date_range[1]}")
+# Option 1: Using an image file (if you have a logo/icon)
+col1, col2 = st.columns([1, 10])
+with col1:
+    st.image("assests/images.png", width=80)  # Replace with your image path
+with col2:
+    st.markdown(
+        """
+        <h1 style="
+            font-family: 'Georgia', 'Palatino', serif;
+            font-size: 46px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        ">
+            ShelfSmart: Intelligent Retail Hub
+        </h1>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+
+
+
+st.markdown("""
+<style>
+.stTabs [data-baseweb="tab-list"] {
+    gap: 2px;
+    background: transparent;
+    border-bottom: 2px solid #2d3748;
+    padding: 0;
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 60px;
+    padding: 0px 32px;
+    background: transparent;
+    border-radius: 0;
+    border-bottom: 3px solid transparent;
+    color: #8b95a8;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.stTabs [data-baseweb="tab"]::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    color: #c3cad8;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.stTabs [data-baseweb="tab"]:hover::after {
+    transform: scaleX(0.5);
+}
+
+.stTabs [aria-selected="true"] {
+    color: #60a5fa !important;
+    background: transparent;
+    font-weight: 700;
+}
+
+.stTabs [aria-selected="true"]::after {
+    transform: scaleX(1);
+}
+</style>
+""", unsafe_allow_html=True)
 
 tab_exec, tab_ops, tab_ai = st.tabs([
     "📈 Executive Summary", 
@@ -51,6 +173,7 @@ with tab_exec:
     
     try:
         # Fetch high-level KPIs
+        # Fetch high-level KPIs
         metrics_df = conn.execute(f"""
             SELECT 
                 SUM(quantity * unit_price) as total_rev,
@@ -59,15 +182,78 @@ with tab_exec:
             FROM fact_sales
             WHERE transaction_date BETWEEN '{date_range[0]}' AND '{date_range[1]}'
         """).df()
-        
-        m1, m2, m3 = st.columns(3)
+
         rev = metrics_df['total_rev'][0] if not metrics_df.empty else 0
         orders = metrics_df['total_orders'][0] if not metrics_df.empty else 0
         aov = metrics_df['avg_order_val'][0] if not metrics_df.empty else 0
 
-        m1.metric("Total Revenue", f"₹{rev:,.2f}", "+5.2%")
-        m2.metric("Order Volume", f"{orders:,}", "-1.4%")
-        m3.metric("Avg. Order Value", f"₹{aov:,.2f}", "+0.8%")
+        # OPTION 1: Gradient Boxes with Icons
+        st.markdown("""
+        <style>
+        .metric-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .metric-label {
+            color: #888;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .metric-delta {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
+        </style>
+        """, unsafe_allow_html=True)
+
+        m1, m2, m3 = st.columns(3)
+
+        with m1:
+            st.markdown(f"""
+            <div class="metric-card" style="border-left-color: #3b82f6;">
+                <div class="metric-label">💰 Total Revenue</div>
+                <div class="metric-value">₹{rev:,.2f}</div>
+                <div class="metric-delta positive">↗ +5.2%</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with m2:
+            st.markdown(f"""
+            <div class="metric-card" style="border-left-color: #8b5cf6;">
+                <div class="metric-label">📦 Order Volume</div>
+                <div class="metric-value">{orders:,}</div>
+                <div class="metric-delta negative">↘ -1.4%</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with m3:
+            st.markdown(f"""
+            <div class="metric-card" style="border-left-color: #06b6d4;">
+                <div class="metric-label">🛍️ Avg. Order Value</div>
+                <div class="metric-value">₹{aov:,.2f}</div>
+                <div class="metric-delta positive">↗ +0.8%</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        
+
+        # OPTION 3: Dark Theme with Glow Effect
         
         st.markdown("---")
 
@@ -255,9 +441,38 @@ with tab_exec:
 # --- TAB 2: REAL-TIME OPERATIONS ---
 # ============================================================
 with tab_ops:
+    st.header("⚡ Real-Time Operations Center")
+    
+    # High-Frequency Fragment (Refreshes every 1 second)
+    @st.fragment(run_every=1)
+    def live_chart_section():
+        file_path = "raw_data/stream/live_stream.csv"
+        
+        if os.path.exists(file_path):
+            # Read the last 30 seconds of data for the moving chart
+            cols = ['timestamp', 'sales', 'inventory', 'store_id']
+            df = pd.read_csv(file_path, names=cols).tail(30)
+            
+            # Layout: Metric + Chart
+            m1, m2 = st.columns([1, 3])
+            with m1:
+                current_val = df['sales'].iloc[-1]
+                st.metric(label="Live Sales (INR)", value=f"₹{current_val}")
+                
+                st.write("📝 Latest Logs")
+                st.dataframe(df.tail(5), hide_index=True)
+            
+            with m2:
+                # The moving line chart
+                st.line_chart(df, x="timestamp", y="sales", color="#ff4b4b")
+        else:
+            st.warning("⚠️ Waiting for stream... Please run the generator in your terminal.")
+
+    # Call the live section
+    live_chart_section()
     st.subheader("Operations & Logistics Health")
     # Simulate real-time data streaming by refreshing this section every 30 seconds
-    st.warning("🔄 Live Stream: Processing logs from `raw_data/stream/` every 30 seconds.")
+    #st.warning("🔄 Live Stream: Processing logs from `raw_data/stream/` every 30 seconds.")
     
     o1, o2 = st.columns(2)
     with o1:
@@ -370,4 +585,4 @@ with tab_ai:
 
 # --- FOOTER ---
 st.markdown("---")
-st.caption(f"ShelfSmart v2.0 | Person B Analyst Suite | Last Updated: {datetime.now().strftime('%H:%M:%S')}")
+st.caption(f"ShelfSmart | Last Updated: {datetime.now().strftime('%H:%M:%S')}")
