@@ -1,56 +1,56 @@
 store_id,store_name,city
-ST_001,Retail Hub Tinsukia,Nanded
-ST_002,Retail Hub Navi Mumbai,Tirunelveli
-ST_003,Retail Hub Uluberia,Satara
-ST_004,Retail Hub Navi Mumbai,Sirsa
-ST_005,Retail Hub Singrauli,Bhimavaram
-ST_006,Retail Hub Sangli-Miraj & Kupwad,Aurangabad
-ST_007,Retail Hub Kavali,Jamalpur
-ST_008,Retail Hub Jalgaon,Barasat
-ST_009,Retail Hub Hindupur,Kavali
-ST_010,Retail Hub Bijapur,Kharagpur
-ST_011,Retail Hub Sambalpur,Bhiwani
-ST_012,Retail Hub Dibrugarh,Tadepalligudem
-ST_013,Retail Hub Phusro,Motihari
-ST_014,Retail Hub Maheshtala,Ambarnath
-ST_015,Retail Hub Sagar,Ongole
-ST_016,Retail Hub Jhansi,Morena
-ST_017,Retail Hub Guntur,Agra
-ST_018,Retail Hub Chinsurah,Hubli–Dharwad
-ST_019,Retail Hub Navi Mumbai,Kamarhati
-ST_020,Retail Hub Miryalaguda,Pudukkottai
-ST_021,Retail Hub Thane,Silchar
-ST_022,Retail Hub Narasaraopet,Ulhasnagar
-ST_023,Retail Hub Haldia,Nangloi Jat
-ST_024,Retail Hub Nandyal,Motihari
-ST_025,Retail Hub Madhyamgram,Rajkot
-ST_026,Retail Hub Guna,Panipat
-ST_027,Retail Hub Phagwara,Ichalkaranji
-ST_028,Retail Hub Ambattur,Motihari
-ST_029,Retail Hub Ahmednagar,Mumbai
-ST_030,Retail Hub Tumkur,Tirunelveli
-ST_031,Retail Hub Rajkot,Jorhat
-ST_032,Retail Hub Bangalore,Yamunanagar
-ST_033,Retail Hub Aligarh,Nizamabad
-ST_034,Retail Hub Kumbakonam,Shimoga
-ST_035,Retail Hub Thane,Bhiwani
-ST_036,Retail Hub Begusarai,Rohtak
-ST_037,Retail Hub Siliguri,Bettiah
-ST_038,Retail Hub Karimnagar,Surat
-ST_039,Retail Hub Unnao,Raebareli
-ST_040,Retail Hub Motihari,Pudukkottai
-ST_041,Retail Hub Kottayam,Gopalpur
-ST_042,Retail Hub Akola,Ghaziabad
-ST_043,Retail Hub Ongole,Mangalore
-ST_044,Retail Hub Tiruchirappalli,Vijayawada
-ST_045,Retail Hub Kanpur,Sagar
-ST_046,Retail Hub Giridih,Bhind
-ST_047,Retail Hub Siwan,Jehanabad
-ST_048,Retail Hub Rourkela,Jamalpur
-ST_049,Retail Hub Gurgaon,Kozhikode
-ST_050,Retail Hub Shimoga,Agra
-ST_051,Retail Hub Aizawl,Chandrapur
-ST_052,Retail Hub Kharagpur,Sultan Pur Majra
-ST_053,Retail Hub Muzaffarnagar,Faridabad
-ST_054,Retail Hub Ujjain,Faridabad
-ST_055,Retail Hub Dharmavaram,Machilipatnam
+ST_001,Retail Hub Bhind,Mango
+ST_002,Retail Hub Pudukkottai,Ongole
+ST_003,Retail Hub Bhatpara,Madanapalle
+ST_004,Retail Hub Sikar,Satara
+ST_005,Retail Hub Danapur,Mysore
+ST_006,Retail Hub Nagpur,Mango
+ST_007,Retail Hub Kollam,Danapur
+ST_008,Retail Hub Gorakhpur,Nagercoil
+ST_009,Retail Hub Durgapur,Rajpur Sonarpur
+ST_010,Retail Hub Khammam,Nizamabad
+ST_011,Retail Hub Pune,Bihar Sharif
+ST_012,Retail Hub Nagaon,Solapur
+ST_013,Retail Hub Surat,Nangloi Jat
+ST_014,Retail Hub Arrah,Mau
+ST_015,Retail Hub Warangal,Sultan Pur Majra
+ST_016,Retail Hub Udupi,Tiruppur
+ST_017,Retail Hub Ghaziabad,Visakhapatnam
+ST_018,Retail Hub Surendranagar Dudhrej,Satna
+ST_019,Retail Hub Faridabad,Ongole
+ST_020,Retail Hub Junagadh,Motihari
+ST_021,Retail Hub Bhatpara,Sambhal
+ST_022,Retail Hub Ichalkaranji,Sikar
+ST_023,Retail Hub Pallavaram,Rewa
+ST_024,Retail Hub Bharatpur,Tirupati
+ST_025,Retail Hub Pondicherry,Alappuzha
+ST_026,Retail Hub Mathura,Jhansi
+ST_027,Retail Hub Ongole,Bhilwara
+ST_028,Retail Hub Tumkur,Hindupur
+ST_029,Retail Hub Silchar,Barasat
+ST_030,Retail Hub Malda,Bhilwara
+ST_031,Retail Hub Ghaziabad,Kavali
+ST_032,Retail Hub Fatehpur,Satna
+ST_033,Retail Hub Bhavnagar,New Delhi
+ST_034,Retail Hub Phusro,Unnao
+ST_035,Retail Hub Bathinda,Kolkata
+ST_036,Retail Hub Shivpuri,Hindupur
+ST_037,Retail Hub Tinsukia,Darbhanga
+ST_038,Retail Hub Bhiwandi,Karaikudi
+ST_039,Retail Hub Mathura,Udaipur
+ST_040,Retail Hub Patiala,Sultan Pur Majra
+ST_041,Retail Hub Nellore,Panipat
+ST_042,Retail Hub Srinagar,Unnao
+ST_043,Retail Hub Unnao,Chandrapur
+ST_044,Retail Hub Darbhanga,Dharmavaram
+ST_045,Retail Hub Miryalaguda,Amritsar
+ST_046,Retail Hub Berhampore,Mathura
+ST_047,Retail Hub Jamshedpur,Srinagar
+ST_048,Retail Hub Kalyan-Dombivli,Anand
+ST_049,Retail Hub Thane,Amritsar
+ST_050,Retail Hub Agra,Anantapur
+ST_051,Retail Hub Alappuzha,Nangloi Jat
+ST_052,Retail Hub Salem,Barasat
+ST_053,Retail Hub Nashik,Alwar
+ST_054,Retail Hub Nashik,Latur
+ST_055,Retail Hub Nadiad,Visakhapatnam
