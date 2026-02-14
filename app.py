@@ -103,7 +103,6 @@ with col2:
 
 
 
-
 st.markdown("""
 <style>
 .stTabs [data-baseweb="tab-list"] {
@@ -120,7 +119,7 @@ st.markdown("""
     border-radius: 0;
     border-bottom: 3px solid transparent;
     color: #8b95a8;
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 600;
     transition: all 0.3s ease;
     position: relative;
@@ -169,10 +168,31 @@ tab_exec, tab_ops, tab_ai = st.tabs([
 # --- TAB 1: EXECUTIVE SUMMARY ---
 # ============================================================
 with tab_exec:
-    st.subheader("Commercial Performance Metrics")
+    # Standardized heading styles
+    st.markdown("""
+    <style>
+    .section-header {
+        font-size: 18px;
+        font-weight: 600;
+        color: #e2e8f0;
+        margin-top: 32px;
+        margin-bottom: 20px;
+        padding: 0;
+    }
+    .main-section-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 32px;
+        margin-top: 0;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Main section title
+    st.markdown('<div class="main-section-title">Commercial Performance Metrics</div>', unsafe_allow_html=True)
     
     try:
-        # Fetch high-level KPIs
         # Fetch high-level KPIs
         metrics_df = conn.execute(f"""
             SELECT 
@@ -187,7 +207,7 @@ with tab_exec:
         orders = metrics_df['total_orders'][0] if not metrics_df.empty else 0
         aov = metrics_df['avg_order_val'][0] if not metrics_df.empty else 0
 
-        # OPTION 1: Gradient Boxes with Icons
+        # Gradient Boxes with Icons
         st.markdown("""
         <style>
         .metric-card {
@@ -222,7 +242,7 @@ with tab_exec:
         </style>
         """, unsafe_allow_html=True)
 
-        m1, m2, m3 = st.columns(3)
+        m1, m2, m3, m4 = st.columns([1.2, 1, 1, 0.9])
 
         with m1:
             st.markdown(f"""
@@ -251,16 +271,31 @@ with tab_exec:
             </div>
             """, unsafe_allow_html=True)
 
-        
+        with m4:
+            try:
+                delivery_query = "SELECT AVG(delivery_time_days) as avg_days FROM fact_shipments"
+                avg_delivery = conn.execute(delivery_query).df()['avg_days'][0]
+                st.markdown(f"""
+                <div class="metric-card" style="border-left-color: #10b981;">
+                    <div class="metric-label">🚚 Avg. Delivery Time</div>
+                    <div class="metric-value">{avg_delivery:.1f} Days</div>
+                </div>
+                """, unsafe_allow_html=True)
+            except:
+                st.markdown(f"""
+                <div class="metric-card" style="border-left-color: #10b981;">
+                    <div class="metric-label">🚚 Avg. Delivery Time</div>
+                    <div class="metric-value">N/A</div>
+                </div>
+                """, unsafe_allow_html=True)
 
-        # OPTION 3: Dark Theme with Glow Effect
-        
         st.markdown("---")
 
         # -------------------------------------------------------
-        # ✅ NEW: DAILY REVENUE TREND
+        # ✅ DAILY REVENUE TREND
         # -------------------------------------------------------
-        st.write("#### 📅 Daily Revenue Trend")
+        st.markdown('<div class="section-header" style="font-size: 24px; font-weight: bold;"> Daily Revenue Trend</div>', unsafe_allow_html=True)
+
         daily_revenue_query = f"""
             SELECT 
                 CAST(transaction_date AS DATE) as sale_date,
@@ -274,20 +309,29 @@ with tab_exec:
         if not daily_df.empty:
             fig_daily = px.line(
                 daily_df, x='sale_date', y='daily_revenue',
-                title="Daily Revenue Over Selected Period",
                 labels={'sale_date': 'Date', 'daily_revenue': 'Revenue (₹)'},
                 template="plotly_white"
             )
-            fig_daily.update_traces(line_color='#1f77b4', line_width=2)
-            fig_daily.update_layout(hovermode="x unified")
+            fig_daily.update_traces(line_color='#3b82f6', line_width=2.5)
+            fig_daily.update_layout(
+                hovermode="x unified",
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#e2e8f0', size=12),
+                showlegend=False,
+                margin=dict(t=20, b=40, l=40, r=40),
+                xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.1)'),
+                yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.1)')
+            )
             st.plotly_chart(fig_daily, use_container_width=True)
         else:
             st.info("No daily revenue data available for this period.")
 
         # -------------------------------------------------------
-        # ✅ NEW: MONTHLY REVENUE TREND
+        # ✅ MONTHLY REVENUE TREND
         # -------------------------------------------------------
-        st.write("#### 🗓️ Monthly Revenue Trend")
+        st.markdown('<div class="section-header" style="font-size: 24px; font-weight: bold;"> Monthly Revenue Trend</div>', unsafe_allow_html=True)
+        
         monthly_revenue_query = f"""
             SELECT 
                 STRFTIME(transaction_date, '%Y-%m') as sale_month,
@@ -302,7 +346,6 @@ with tab_exec:
         if not monthly_df.empty:
             fig_monthly = px.bar(
                 monthly_df, x='sale_month', y='monthly_revenue',
-                title="Monthly Revenue Breakdown",
                 labels={'sale_month': 'Month', 'monthly_revenue': 'Revenue (₹)'},
                 color='monthly_revenue', color_continuous_scale='Blues',
                 template="plotly_white"
@@ -325,7 +368,8 @@ with tab_exec:
                     showgrid=False
                 ),
                 hovermode="x unified",
-                legend=dict(orientation="h", yanchor="bottom", y=1.02)
+                legend=dict(orientation="h", yanchor="bottom", y=1.02),
+                margin=dict(t=20, b=40, l=40, r=40)
             )
             st.plotly_chart(fig_monthly, use_container_width=True)
         else:
@@ -333,10 +377,11 @@ with tab_exec:
 
         st.markdown("---")
 
-        # City-wise Sales + New vs. Returning (existing, unchanged)
+        # City-wise Sales + New vs. Returning
         c_left, c_right = st.columns(2)
         with c_left:
-            st.write("#### 📍 City-wise Sales")
+            st.markdown('<div class="section-header" style="font-size: 24px; font-weight: bold;">📍 City-wise Sales</div>', unsafe_allow_html=True)
+            
             city_query = f"""
                 SELECT c.city, SUM(s.quantity * s.unit_price) as revenue
                 FROM fact_sales s
@@ -349,12 +394,14 @@ with tab_exec:
                 fig_city = px.bar(city_df, x='revenue', y='city', orientation='h', 
                                   color='revenue', color_continuous_scale='Blues',
                                   template="plotly_white")
+                fig_city.update_layout(margin=dict(t=20, b=40, l=40, r=40))
                 st.plotly_chart(fig_city, use_container_width=True)
             else:
                 st.info("No city data available.")
 
         with c_right:
-            st.write("#### 👥 New vs. Returning Shoppers")
+            st.markdown('<div class="section-header" style="font-size: 24px; font-weight: bold;">👥 New vs. Returning Shoppers</div>', unsafe_allow_html=True)
+            
             shopper_query = f"""
                 WITH shopper_counts AS (
                     SELECT customer_id, COUNT(DISTINCT transaction_id) as t_count
@@ -372,6 +419,7 @@ with tab_exec:
             if not shopper_df.empty:
                 fig_shopper = px.pie(shopper_df, values='user_count', names='shopper_type', 
                                      color_discrete_sequence=['#1f77b4', '#aec7e8'], hole=0.4)
+                fig_shopper.update_layout(margin=dict(t=20, b=40, l=40, r=40))
                 st.plotly_chart(fig_shopper, use_container_width=True)
             else:
                 st.info("No shopper data available.")
@@ -379,9 +427,10 @@ with tab_exec:
         st.markdown("---")
 
         # -------------------------------------------------------
-        # ✅ NEW: TOP-SELLING PRODUCTS
+        # ✅ TOP-SELLING PRODUCTS
         # -------------------------------------------------------
-        st.write("#### 🏆 Top-Selling Products")
+        st.markdown('<div class="section-header" style="font-size: 24px; font-weight: bold;">🏆 Top-Selling Products</div>', unsafe_allow_html=True)
+        
         top_n = st.slider("Show top N products", min_value=5, max_value=25, value=10, step=5)
         rank_by = st.radio(
             "Rank by", 
@@ -418,10 +467,12 @@ with tab_exec:
                     'product_name': 'Product',
                     'revenue': 'Revenue (₹)',
                     'units_sold': 'Units Sold'
-                },
-                title=f"Top {top_n} Products by {rank_by}"
+                }
             )
-            fig_top.update_layout(yaxis={'categoryorder': 'total ascending'})
+            fig_top.update_layout(
+                yaxis={'categoryorder': 'total ascending'},
+                margin=dict(t=20, b=40, l=40, r=40)
+            )
             st.plotly_chart(fig_top, use_container_width=True)
 
             # Also show as a compact table below the chart
@@ -441,7 +492,7 @@ with tab_exec:
 # --- TAB 2: REAL-TIME OPERATIONS ---
 # ============================================================
 with tab_ops:
-    st.header("⚡ Real-Time Operations Center")
+    st.write(" Real-Time Operations Center")
     
     # High-Frequency Fragment (Refreshes every 1 second)
     @st.fragment(run_every=1)
@@ -451,7 +502,7 @@ with tab_ops:
         if os.path.exists(file_path):
             # Read the last 30 seconds of data for the moving chart
             cols = ['timestamp', 'sales', 'inventory', 'store_id']
-            df = pd.read_csv(file_path, names=cols).tail(30)
+            df = pd.read_csv(file_path, names=cols).tail(15)
             
             # Layout: Metric + Chart
             m1, m2 = st.columns([1, 3])
@@ -466,43 +517,14 @@ with tab_ops:
                 # The moving line chart
                 st.line_chart(df, x="timestamp", y="sales", color="#ff4b4b")
         else:
-            st.warning("⚠️ Waiting for stream... Please run the generator in your terminal.")
+            st.warning(" Waiting for stream... Please run the generator in your terminal.")
 
     # Call the live section
     live_chart_section()
-    st.subheader("Operations & Logistics Health")
-    # Simulate real-time data streaming by refreshing this section every 30 seconds
-    #st.warning("🔄 Live Stream: Processing logs from `raw_data/stream/` every 30 seconds.")
     
-    o1, o2 = st.columns(2)
-    with o1:
-        st.write("#### 📦 Inventory Turnover Ratio")
-        try:
-            turnover_query = f"""
-                SELECT 
-                    CAST(SUM(s.quantity) AS FLOAT) / NULLIF(AVG(i.stock_on_hand), 0) as turnover_ratio
-                FROM fact_sales s
-                LEFT JOIN fact_inventory i ON s.product_id = i.product_id
-                WHERE s.transaction_date BETWEEN '{date_range[0]}' AND '{date_range[1]}'
-            """
-            turnover_val = conn.execute(turnover_query).df()['turnover_ratio'][0]
-            st.metric("Inventory Turnover", f"{turnover_val:.2f}x", help="Formula: SUM(qty) / AVG(stock)")
-            st.progress(min(max(turnover_val / 10, 0.0), 1.0))
-        except:
-            st.metric("Inventory Turnover", "0.00x")
-
-    with o2:
-        st.write("#### 🚚 Average Delivery Time")
-        try:
-            delivery_query = "SELECT AVG(delivery_time_days) as avg_days FROM fact_shipments"
-            avg_delivery = conn.execute(delivery_query).df()['avg_days'][0]
-            st.metric("Avg. Delivery Time", f"{avg_delivery:.1f} Days", delta_color="inverse")
-        except:
-            st.metric("Avg. Delivery Time", "N/A")
-
     st.markdown("---")
     
-    st.write("#### 🗓️ Seasonal Demand Trends")
+    st.write("####  Seasonal Demand Trends")
     try:
         seasonal_query = f"""
             SELECT 
