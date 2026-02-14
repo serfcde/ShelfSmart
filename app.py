@@ -552,13 +552,15 @@ with tab_ops:
 # --- TAB 3: AI INSIGHTS ---
 # ============================================================
 with tab_ai:
-    st.subheader("Predictive Analytics & Intelligence")
+    #st.markdown('<div class="main-section-title">Predictive Analytics & Intelligence</div>', unsafe_allow_html=True)
     
     ai_col1, ai_col2 = st.columns([2, 1])
     
     with ai_col1:
-        st.write("#### 🧺 Market Basket Analysis")
-        if st.button("🚀 Run Rule Discovery"):
+        st.markdown('<div class="section-header">🧺 Product Pairing Insights</div>', unsafe_allow_html=True)
+        st.caption("Discover which products customers frequently buy together")
+        
+        if st.button("🚀 Discover Product Pairs"):
             try:
                 ml_data = conn.execute("""
                     SELECT s.transaction_id, p.description as product_name
@@ -568,14 +570,128 @@ with tab_ai:
                 """).df()
                 if not ml_data.empty:
                     rules = run_market_basket_analysis(ml_data)
-                    st.dataframe(rules, use_container_width=True)
+                    
+                    if not rules.empty:
+                        # Show top rules based on lift
+                        top_rules = rules.nlargest(15, 'lift')
+                        
+                        # Create a simplified business-friendly dataframe
+                        business_rules = top_rules.copy()
+                        business_rules['buy_frequency'] = (business_rules['support'] * 100).round(1)
+                        business_rules['purchase_likelihood'] = (business_rules['confidence'] * 100).round(0)
+                        business_rules['strength_score'] = business_rules['lift'].round(1)
+                        
+                        # Create tabs for different views
+                        viz_tab1, viz_tab2, viz_tab3 = st.tabs(["💡 Key Insights", "📊 Visual Analysis", "🎁 Recommendations"])
+                        
+                        with viz_tab1:
+                            st.markdown("### 🎯 Top Product Combinations")
+                            st.markdown("---")
+                            
+                            # Show top 5 insights as cards
+                            for idx, row in business_rules.head(5).iterrows():
+                                col1, col2 = st.columns([3, 1])
+                                with col1:
+                                    st.markdown(f"""
+                                    <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); 
+                                                padding: 20px; border-radius: 10px; border-left: 4px solid #3b82f6; margin-bottom: 15px;">
+                                        <div style="font-size: 16px; font-weight: 600; color: #60a5fa; margin-bottom: 8px;">
+                                            🛒 Customers who buy: <span style="color: #ffffff;">{row['antecedents']}</span>
+                                        </div>
+                                        <div style="font-size: 14px; color: #94a3b8; margin-bottom: 12px;">
+                                            Also tend to buy: <span style="color: #10b981; font-weight: 600;">{row['consequents']}</span>
+                                        </div>
+                                        <div style="font-size: 13px; color: #8b95a8;">
+                                            📈 {int(row['purchase_likelihood'])}% of customers who bought the first item also bought the second
+                                        </div>
+                                    </div>
+                                    """, unsafe_allow_html=True)
+                                with col2:
+                                    st.metric(
+                                        "Strength", 
+                                        f"{row['strength_score']}x",
+                                        help="How much more likely this combination occurs vs random chance. Higher = stronger relationship"
+                                    )
+                        
+                        with viz_tab2:
+                            # Simple bar chart with business language
+                            fig_simple = px.bar(
+                                business_rules.head(10),
+                                y='antecedents',
+                                x='purchase_likelihood',
+                                color='strength_score',
+                                orientation='h',
+                                labels={
+                                    'antecedents': 'When Customers Buy',
+                                    'purchase_likelihood': 'Likelihood They Also Buy Related Item (%)',
+                                    'strength_score': 'Relationship Strength'
+                                },
+                                color_continuous_scale='Blues'
+                            )
+                            fig_simple.update_layout(
+                                height=500,
+                                margin=dict(t=20, b=40, l=200, r=40),
+                                yaxis={'categoryorder': 'total ascending'}
+                            )
+                            st.plotly_chart(fig_simple, use_container_width=True)
+                            
+                            st.info(" The longer the bar, the more likely customers are to buy both products together. Darker colors mean stronger relationships.")
+                        
+                        with viz_tab3:
+                            st.markdown("### 🎁 Actionable Recommendations")
+                            st.markdown("---")
+                            
+                            # Generate business recommendations
+                            recommendations = [
+                                {
+                                    "icon": "🏪",
+                                    "title": "Store Layout",
+                                    "text": f"Place **{business_rules.iloc[0]['antecedents']}** near **{business_rules.iloc[0]['consequents']}** to increase impulse purchases."
+                                },
+                                {
+                                    "icon": "🎯",
+                                    "title": "Cross-Sell Promotions",
+                                    "text": f"Create a bundle offer: Buy **{business_rules.iloc[1]['antecedents']}**, get a discount on **{business_rules.iloc[1]['consequents']}**."
+                                },
+                                {
+                                    "icon": "📧",
+                                    "title": "Email Marketing",
+                                    "text": f"Send personalized recommendations to customers who bought **{business_rules.iloc[2]['antecedents']}** suggesting **{business_rules.iloc[2]['consequents']}**."
+                                },
+                                {
+                                    "icon": "📦",
+                                    "title": "Inventory Planning",
+                                    "text": f"When stocking **{business_rules.iloc[0]['antecedents']}**, ensure adequate inventory of **{business_rules.iloc[0]['consequents']}**."
+                                }
+                            ]
+                            
+                            for rec in recommendations:
+                                st.markdown(f"""
+                                <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 8px; 
+                                            border-left: 3px solid #10b981; margin-bottom: 12px;">
+                                    <div style="font-size: 18px; margin-bottom: 5px;">{rec['icon']} <strong>{rec['title']}</strong></div>
+                                    <div style="font-size: 14px; color: #cbd5e1;">{rec['text']}</div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            
+                            # Show simple table
+                            st.markdown("---")
+                            st.markdown("### 📋 Complete Pairing List")
+                            simple_table = business_rules[['antecedents', 'consequents', 'purchase_likelihood', 'strength_score']].copy()
+                            simple_table.columns = ['Customers Buy This', 'They Also Buy This', 'Likelihood (%)', 'Strength']
+                            simple_table['Likelihood (%)'] = simple_table['Likelihood (%)'].astype(int).astype(str) + '%'
+                            simple_table['Strength'] = simple_table['Strength'].astype(str) + 'x'
+                            st.dataframe(simple_table, use_container_width=True, hide_index=True)
+                    else:
+                        st.warning("No significant product pairings found in the current data.")
                 else:
                     st.error("Incomplete data.")
             except Exception as e:
                 st.error(f"Analysis Error: {e}")
     
     with ai_col2:
-        st.write("#### 💎 Customer Lifetime Value (CLV)")
+        st.markdown('<div class="section-header">💎 Top Customers by Value</div>', unsafe_allow_html=True)
+        st.caption("Customers with highest predicted lifetime value")
         try:
             clv_query = f"""
                 WITH customer_metrics AS (
@@ -592,17 +708,30 @@ with tab_ai:
                     cm.aov * cm.frequency * 1.5 as clv_score
                 FROM customer_metrics cm
                 JOIN dim_customers c ON cm.customer_id = c.customer_id
-                ORDER BY 2 DESC LIMIT 5
+                ORDER BY 2 DESC LIMIT 8
             """
             clv_df = conn.execute(clv_query).df()
             if not clv_df.empty:
+                # Show as a mini leaderboard
                 for idx, row in clv_df.iterrows():
-                    st.write(f"**{row['name']}**")
-                    st.caption(f"Predicted Value: ₹{row['clv_score']:,.2f}")
+                    rank = idx + 1
+                    medal = "🥇" if rank == 1 else "🥈" if rank == 2 else "🥉" if rank == 3 else f"#{rank}"
+                    st.markdown(f"""
+                    <div style="background: rgba(59, 130, 246, 0.05); padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                        <div style="font-size: 16px; font-weight: 600; color: #e2e8f0;">
+                            {medal} {row['name']}
+                        </div>
+                        <div style="font-size: 13px; color: #10b981; margin-top: 4px;">
+                            Expected Value: ₹{row['clv_score']:,.0f}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                st.info(" Focus retention efforts on these high-value customers through loyalty programs and personalized offers.")
             else:
-                st.info("Awaiting CLV calculation data.")
+                st.info("Awaiting customer value data.")
         except:
-            st.caption("CLV data pending...")
+            st.caption("Customer value analysis pending...")
 
 
 # --- FOOTER ---
